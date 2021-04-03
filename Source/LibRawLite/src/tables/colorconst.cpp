@@ -1,5 +1,5 @@
 /* -*- C++ -*-
- * Copyright 2019-2020 LibRaw LLC (info@libraw.org)
+ * Copyright 2019-2021 LibRaw LLC (info@libraw.org)
  *
  LibRaw is free software; you can redistribute it and/or modify
  it under the terms of the one of two licenses as you choose:
@@ -43,3 +43,11 @@ const double LibRaw_constants::aces_rgb[3][3] = {
     {0.432996, 0.375380, 0.189317},
     {0.089427, 0.816523, 0.102989},
     {0.019165, 0.118150, 0.941914}};
+const double LibRaw_constants::dcip3d65_rgb[3][3] = {
+    {0.822488, 0.177511, 0.000000},
+    {0.033200, 0.966800, 0.000000},
+    {0.017089, 0.072411, 0.910499}};
+const double LibRaw_constants::rec2020_rgb[3][3] = {
+    {0.627452, 0.329249, 0.043299},
+    {0.069109, 0.919531, 0.011360},
+    {0.016398, 0.088030, 0.895572}};

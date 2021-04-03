@@ -1,5 +1,5 @@
 /* -*- C++ -*-
- * Copyright 2019-2020 LibRaw LLC (info@libraw.org)
+ * Copyright 2019-2021 LibRaw LLC (info@libraw.org)
  *
  LibRaw is free software; you can redistribute it and/or modify
  it under the terms of the one of two licenses as you choose:
@@ -14,57 +14,22 @@
 
 #include "../../internal/dcraw_defs.h"
 
-const uchar LibRaw::xlat[2][256] = {
-    {0xc1, 0xbf, 0x6d, 0x0d, 0x59, 0xc5, 0x13, 0x9d, 0x83, 0x61, 0x6b, 0x4f,
-     0xc7, 0x7f, 0x3d, 0x3d, 0x53, 0x59, 0xe3, 0xc7, 0xe9, 0x2f, 0x95, 0xa7,
-     0x95, 0x1f, 0xdf, 0x7f, 0x2b, 0x29, 0xc7, 0x0d, 0xdf, 0x07, 0xef, 0x71,
-     0x89, 0x3d, 0x13, 0x3d, 0x3b, 0x13, 0xfb, 0x0d, 0x89, 0xc1, 0x65, 0x1f,
-     0xb3, 0x0d, 0x6b, 0x29, 0xe3, 0xfb, 0xef, 0xa3, 0x6b, 0x47, 0x7f, 0x95,
-     0x35, 0xa7, 0x47, 0x4f, 0xc7, 0xf1, 0x59, 0x95, 0x35, 0x11, 0x29, 0x61,
-     0xf1, 0x3d, 0xb3, 0x2b, 0x0d, 0x43, 0x89, 0xc1, 0x9d, 0x9d, 0x89, 0x65,
-     0xf1, 0xe9, 0xdf, 0xbf, 0x3d, 0x7f, 0x53, 0x97, 0xe5, 0xe9, 0x95, 0x17,
-     0x1d, 0x3d, 0x8b, 0xfb, 0xc7, 0xe3, 0x67, 0xa7, 0x07, 0xf1, 0x71, 0xa7,
-     0x53, 0xb5, 0x29, 0x89, 0xe5, 0x2b, 0xa7, 0x17, 0x29, 0xe9, 0x4f, 0xc5,
-     0x65, 0x6d, 0x6b, 0xef, 0x0d, 0x89, 0x49, 0x2f, 0xb3, 0x43, 0x53, 0x65,
-     0x1d, 0x49, 0xa3, 0x13, 0x89, 0x59, 0xef, 0x6b, 0xef, 0x65, 0x1d, 0x0b,
-     0x59, 0x13, 0xe3, 0x4f, 0x9d, 0xb3, 0x29, 0x43, 0x2b, 0x07, 0x1d, 0x95,
-     0x59, 0x59, 0x47, 0xfb, 0xe5, 0xe9, 0x61, 0x47, 0x2f, 0x35, 0x7f, 0x17,
-     0x7f, 0xef, 0x7f, 0x95, 0x95, 0x71, 0xd3, 0xa3, 0x0b, 0x71, 0xa3, 0xad,
-     0x0b, 0x3b, 0xb5, 0xfb, 0xa3, 0xbf, 0x4f, 0x83, 0x1d, 0xad, 0xe9, 0x2f,
-     0x71, 0x65, 0xa3, 0xe5, 0x07, 0x35, 0x3d, 0x0d, 0xb5, 0xe9, 0xe5, 0x47,
-     0x3b, 0x9d, 0xef, 0x35, 0xa3, 0xbf, 0xb3, 0xdf, 0x53, 0xd3, 0x97, 0x53,
-     0x49, 0x71, 0x07, 0x35, 0x61, 0x71, 0x2f, 0x43, 0x2f, 0x11, 0xdf, 0x17,
-     0x97, 0xfb, 0x95, 0x3b, 0x7f, 0x6b, 0xd3, 0x25, 0xbf, 0xad, 0xc7, 0xc5,
-     0xc5, 0xb5, 0x8b, 0xef, 0x2f, 0xd3, 0x07, 0x6b, 0x25, 0x49, 0x95, 0x25,
-     0x49, 0x6d, 0x71, 0xc7},
-    {0xa7, 0xbc, 0xc9, 0xad, 0x91, 0xdf, 0x85, 0xe5, 0xd4, 0x78, 0xd5, 0x17,
-     0x46, 0x7c, 0x29, 0x4c, 0x4d, 0x03, 0xe9, 0x25, 0x68, 0x11, 0x86, 0xb3,
-     0xbd, 0xf7, 0x6f, 0x61, 0x22, 0xa2, 0x26, 0x34, 0x2a, 0xbe, 0x1e, 0x46,
-     0x14, 0x68, 0x9d, 0x44, 0x18, 0xc2, 0x40, 0xf4, 0x7e, 0x5f, 0x1b, 0xad,
-     0x0b, 0x94, 0xb6, 0x67, 0xb4, 0x0b, 0xe1, 0xea, 0x95, 0x9c, 0x66, 0xdc,
-     0xe7, 0x5d, 0x6c, 0x05, 0xda, 0xd5, 0xdf, 0x7a, 0xef, 0xf6, 0xdb, 0x1f,
-     0x82, 0x4c, 0xc0, 0x68, 0x47, 0xa1, 0xbd, 0xee, 0x39, 0x50, 0x56, 0x4a,
-     0xdd, 0xdf, 0xa5, 0xf8, 0xc6, 0xda, 0xca, 0x90, 0xca, 0x01, 0x42, 0x9d,
-     0x8b, 0x0c, 0x73, 0x43, 0x75, 0x05, 0x94, 0xde, 0x24, 0xb3, 0x80, 0x34,
-     0xe5, 0x2c, 0xdc, 0x9b, 0x3f, 0xca, 0x33, 0x45, 0xd0, 0xdb, 0x5f, 0xf5,
-     0x52, 0xc3, 0x21, 0xda, 0xe2, 0x22, 0x72, 0x6b, 0x3e, 0xd0, 0x5b, 0xa8,
-     0x87, 0x8c, 0x06, 0x5d, 0x0f, 0xdd, 0x09, 0x19, 0x93, 0xd0, 0xb9, 0xfc,
-     0x8b, 0x0f, 0x84, 0x60, 0x33, 0x1c, 0x9b, 0x45, 0xf1, 0xf0, 0xa3, 0x94,
-     0x3a, 0x12, 0x77, 0x33, 0x4d, 0x44, 0x78, 0x28, 0x3c, 0x9e, 0xfd, 0x65,
-     0x57, 0x16, 0x94, 0x6b, 0xfb, 0x59, 0xd0, 0xc8, 0x22, 0x36, 0xdb, 0xd2,
-     0x63, 0x98, 0x43, 0xa1, 0x04, 0x87, 0x86, 0xf7, 0xa6, 0x26, 0xbb, 0xd6,
-     0x59, 0x4d, 0xbf, 0x6a, 0x2e, 0xaa, 0x2b, 0xef, 0xe6, 0x78, 0xb6, 0x4e,
-     0xe0, 0x2f, 0xdc, 0x7c, 0xbe, 0x57, 0x19, 0x32, 0x7e, 0x2a, 0xd0, 0xb8,
-     0xba, 0x29, 0x00, 0x3c, 0x52, 0x7d, 0xa8, 0x49, 0x3b, 0x2d, 0xeb, 0x25,
-     0x49, 0xfa, 0xa3, 0xaa, 0x39, 0xa7, 0xc5, 0xa7, 0x50, 0x11, 0x36, 0xfb,
-     0xc6, 0x67, 0x4a, 0xf5, 0xa5, 0x12, 0x65, 0x7e, 0xb0, 0xdf, 0xaf, 0x4e,
-     0xb3, 0x61, 0x7f, 0x2f}};
 
-const int LibRaw:: tagtype_dataunit_bytes [19] = {
+#define _ARR_SZ(a) (sizeof(a)/sizeof(a[0]))
+
+static const int _tagtype_dataunit_bytes [19] = {
     1, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4, 2, 8, 8, 8, 8
 };
 
-const int LibRaw::Canon_wbi2std[] = { // Canon WB index to standard indexes
+libraw_static_table_t LibRaw::tagtype_dataunit_bytes(_tagtype_dataunit_bytes, _ARR_SZ(_tagtype_dataunit_bytes));
+
+int libraw_tagtype_dataunit_bytes(int tagtype)
+{
+    return _tagtype_dataunit_bytes[(tagtype <= _ARR_SZ(_tagtype_dataunit_bytes)) ? tagtype : 0];
+}
+
+
+static const int _Canon_wbi2std[] = { // Canon WB index to standard indexes
 //      std. number                wbi - Canon number
     LIBRAW_WBI_Auto,             // 0
     LIBRAW_WBI_Daylight,         // 1
@@ -91,9 +56,10 @@ const int LibRaw::Canon_wbi2std[] = { // Canon WB index to standard indexes
     LIBRAW_WBI_Unknown,          // 22
     LIBRAW_WBI_Auto1             // 23
 };
-const int LibRaw::nCanon_wbi2std = sizeof(Canon_wbi2std) / sizeof(int);
 
-int LibRaw::Canon_KeyIsZero_Len2048_linenums_2_StdWBi[] = { // Appendix A: G2, S30, S40; G3, G5, S45, S50
+libraw_static_table_t LibRaw::Canon_wbi2std(_Canon_wbi2std, _ARR_SZ(_Canon_wbi2std));
+
+static const int _Canon_KeyIsZero_Len2048_linenums_2_StdWBi[] = { // Appendix A: G2, S30, S40; G3, G5, S45, S50
   LIBRAW_WBI_Custom1,
   LIBRAW_WBI_Custom2,
   LIBRAW_WBI_Daylight,
@@ -103,10 +69,11 @@ int LibRaw::Canon_KeyIsZero_Len2048_linenums_2_StdWBi[] = { // Appendix A: G2, S
   LIBRAW_WBI_Unknown, // ? FluorescentHigh, Shade, Custom, Kelvin
   LIBRAW_WBI_Flash
 };
-const int LibRaw::nCanon_KeyIsZero_Len2048_linenums_2_StdWBi =
-      sizeof(Canon_KeyIsZero_Len2048_linenums_2_StdWBi) / sizeof(int);
 
-int LibRaw::Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi[] = { // G6, S60, S70; offset +16
+libraw_static_table_t LibRaw::Canon_KeyIsZero_Len2048_linenums_2_StdWBi(_Canon_KeyIsZero_Len2048_linenums_2_StdWBi,
+    _ARR_SZ(_Canon_KeyIsZero_Len2048_linenums_2_StdWBi));
+
+static const int _Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi[] = { // G6, S60, S70; offset +16
   LIBRAW_WBI_Custom1,
   LIBRAW_WBI_Custom2,
   LIBRAW_WBI_Daylight,
@@ -119,10 +86,11 @@ int LibRaw::Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi[] = { // G6, S60, S70; o
   LIBRAW_WBI_Unknown,
   LIBRAW_WBI_Flash
 };
-const int LibRaw::nCanon_KeyIs0x0410_Len3072_linenums_2_StdWBi =
-      sizeof(Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi) / sizeof(int);
 
-int LibRaw::Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi[] = { // Pro1; offset +8
+libraw_static_table_t LibRaw::Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi(_Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi,
+    _ARR_SZ(_Canon_KeyIs0x0410_Len3072_linenums_2_StdWBi));
+
+static const int _Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi[] = { // Pro1; offset +8
   LIBRAW_WBI_Custom1,
   LIBRAW_WBI_Custom2,
   LIBRAW_WBI_Daylight,
@@ -135,10 +103,11 @@ int LibRaw::Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi[] = { // Pro1; offset +8
   LIBRAW_WBI_Unknown,
   LIBRAW_WBI_Unknown // LIBRAW_WBI_Flash
 };
-const int LibRaw::nCanon_KeyIs0x0410_Len2048_linenums_2_StdWBi =
-      sizeof(Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi) / sizeof(int);
 
-const int LibRaw::Canon_G9_linenums_2_StdWBi[] = {
+libraw_static_table_t LibRaw::Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi(_Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi,
+    _ARR_SZ(_Canon_KeyIs0x0410_Len2048_linenums_2_StdWBi));
+
+static const int _Canon_G9_linenums_2_StdWBi[] = {
     LIBRAW_WBI_Auto,
     LIBRAW_WBI_Daylight,
     LIBRAW_WBI_Cloudy,
@@ -150,9 +119,9 @@ const int LibRaw::Canon_G9_linenums_2_StdWBi[] = {
     LIBRAW_WBI_Custom1,
     LIBRAW_WBI_Custom2
 };
-const int LibRaw::nCanon_G9_linenums_2_StdWBi = sizeof(Canon_G9_linenums_2_StdWBi) / sizeof(int);
+libraw_static_table_t LibRaw::Canon_G9_linenums_2_StdWBi(_Canon_G9_linenums_2_StdWBi, _ARR_SZ(_Canon_G9_linenums_2_StdWBi));
 
-const int LibRaw::Canon_D30_linenums_2_StdWBi[] = {
+static const int _Canon_D30_linenums_2_StdWBi[] = {
     LIBRAW_WBI_Daylight,
     LIBRAW_WBI_Cloudy,
     LIBRAW_WBI_Tungsten,
@@ -160,49 +129,54 @@ const int LibRaw::Canon_D30_linenums_2_StdWBi[] = {
     LIBRAW_WBI_Flash,
     LIBRAW_WBI_Custom
 };
-const int LibRaw::nCanon_D30_linenums_2_StdWBi = sizeof(Canon_D30_linenums_2_StdWBi) / sizeof(int);
+libraw_static_table_t LibRaw::Canon_D30_linenums_2_StdWBi(_Canon_D30_linenums_2_StdWBi, _ARR_SZ(_Canon_D30_linenums_2_StdWBi));
 
-const int LibRaw::Fuji_wb_list1[] = {
+static const int _Fuji_wb_list1[] = {
     LIBRAW_WBI_FineWeather, LIBRAW_WBI_Shade, LIBRAW_WBI_FL_D,
-    LIBRAW_WBI_FL_L,        LIBRAW_WBI_FL_W,  LIBRAW_WBI_Tungsten
-};
-const int LibRaw::nFuji_wb_list1 = sizeof(Fuji_wb_list1) / sizeof(int);
+    LIBRAW_WBI_FL_N,        LIBRAW_WBI_FL_W,  LIBRAW_WBI_Tungsten
 
-const int LibRaw::FujiCCT_K[31] = {
+};
+libraw_static_table_t LibRaw::Fuji_wb_list1(_Fuji_wb_list1, _ARR_SZ(_Fuji_wb_list1));
+
+static const int _FujiCCT_K[31] = {
     2500, 2550, 2650, 2700, 2800, 2850, 2950, 3000, 3100, 3200, 3300,
     3400, 3600, 3700, 3800, 4000, 4200, 4300, 4500, 4800, 5000, 5300,
     5600, 5900, 6300, 6700, 7100, 7700, 8300, 9100, 10000
 };
+libraw_static_table_t LibRaw::FujiCCT_K(_FujiCCT_K, _ARR_SZ(_FujiCCT_K));
 
-const int LibRaw::Fuji_wb_list2[] = {
+static const int _Fuji_wb_list2[] = {
     LIBRAW_WBI_Auto,  0,  LIBRAW_WBI_Custom,   6,  LIBRAW_WBI_FineWeather, 1,
-    LIBRAW_WBI_Shade, 8,  LIBRAW_WBI_FL_D,     10, LIBRAW_WBI_FL_L,        11,
+    LIBRAW_WBI_Shade, 8,  LIBRAW_WBI_FL_D,     10, LIBRAW_WBI_FL_N,        11,
     LIBRAW_WBI_FL_W,  12, LIBRAW_WBI_Tungsten, 2,  LIBRAW_WBI_Underwater,  35,
     LIBRAW_WBI_Ill_A, 82, LIBRAW_WBI_D65,      83
 };
-const int LibRaw::nFuji_wb_list2 = sizeof(Fuji_wb_list2) / sizeof(int);
+libraw_static_table_t LibRaw::Fuji_wb_list2(_Fuji_wb_list2, _ARR_SZ(_Fuji_wb_list2));
 
-const int LibRaw::Pentax_wb_list1[] = {
+static const int _Pentax_wb_list1[] = {
     LIBRAW_WBI_Daylight, LIBRAW_WBI_Shade,
     LIBRAW_WBI_Cloudy,   LIBRAW_WBI_Tungsten,
     LIBRAW_WBI_FL_D,     LIBRAW_WBI_FL_N,
     LIBRAW_WBI_FL_W,     LIBRAW_WBI_Flash
 };
+libraw_static_table_t LibRaw::Pentax_wb_list1(_Pentax_wb_list1, _ARR_SZ(_Pentax_wb_list1));
 
-const int LibRaw::Pentax_wb_list2[] = {
+static const int _Pentax_wb_list2[] = {
     LIBRAW_WBI_Daylight, LIBRAW_WBI_Shade, LIBRAW_WBI_Cloudy,
     LIBRAW_WBI_Tungsten, LIBRAW_WBI_FL_D,  LIBRAW_WBI_FL_N,
     LIBRAW_WBI_FL_W,     LIBRAW_WBI_Flash, LIBRAW_WBI_FL_L
 };
-const int LibRaw::nPentax_wb_list2 = sizeof(Pentax_wb_list2) / sizeof(int);
+libraw_static_table_t LibRaw::Pentax_wb_list2(_Pentax_wb_list2, _ARR_SZ(_Pentax_wb_list2));
 
-const int LibRaw::Oly_wb_list1[] = {
+
+static const int _Oly_wb_list1[] = {
     LIBRAW_WBI_Shade,    LIBRAW_WBI_Cloudy, LIBRAW_WBI_FineWeather,
     LIBRAW_WBI_Tungsten, LIBRAW_WBI_Sunset, LIBRAW_WBI_FL_D,
     LIBRAW_WBI_FL_N,     LIBRAW_WBI_FL_W,   LIBRAW_WBI_FL_WW
 };
+libraw_static_table_t LibRaw::Oly_wb_list1(_Oly_wb_list1, _ARR_SZ(_Oly_wb_list1));
 
-const int LibRaw::Oly_wb_list2[] = {
+static const int _Oly_wb_list2[] = {
     LIBRAW_WBI_Auto, 0,
     LIBRAW_WBI_Tungsten, 3000,
     0x100, 3300,
@@ -221,19 +195,23 @@ const int LibRaw::Oly_wb_list2[] = {
     LIBRAW_WBI_Custom3, 0,
     LIBRAW_WBI_Custom4, 0
 };
+libraw_static_table_t LibRaw::Oly_wb_list2(_Oly_wb_list2, _ARR_SZ(_Oly_wb_list2));
 
-const int LibRaw::Sony_SRF_wb_list[] = {
+static const int _Sony_SRF_wb_list[] = {
     LIBRAW_WBI_Daylight, LIBRAW_WBI_Cloudy, LIBRAW_WBI_Fluorescent,
     LIBRAW_WBI_Tungsten, LIBRAW_WBI_Flash
 };
+libraw_static_table_t LibRaw::Sony_SRF_wb_list(_Sony_SRF_wb_list, _ARR_SZ(_Sony_SRF_wb_list));
 
-const int LibRaw::Sony_SR2_wb_list[] = {
+static const int _Sony_SR2_wb_list[] = {
     LIBRAW_WBI_Daylight, LIBRAW_WBI_Cloudy, LIBRAW_WBI_Tungsten, LIBRAW_WBI_Flash,
     4500, LIBRAW_WBI_Unknown, LIBRAW_WBI_Fluorescent
 };
+libraw_static_table_t LibRaw::Sony_SR2_wb_list(_Sony_SR2_wb_list, _ARR_SZ(_Sony_SR2_wb_list));
 
-const int LibRaw::Sony_SR2_wb_list1[] = {
+static const int _Sony_SR2_wb_list1[] = {
     LIBRAW_WBI_Daylight, LIBRAW_WBI_Cloudy, LIBRAW_WBI_Tungsten, LIBRAW_WBI_Flash,
     4500, LIBRAW_WBI_Shade, LIBRAW_WBI_FL_W, LIBRAW_WBI_FL_N, LIBRAW_WBI_FL_D,
     LIBRAW_WBI_FL_L, 8500, 6000, 3200, 2500
 };
+libraw_static_table_t LibRaw::Sony_SR2_wb_list1(_Sony_SR2_wb_list1, _ARR_SZ(_Sony_SR2_wb_list1));

@@ -1,5 +1,5 @@
 /* -*- C++ -*-
- * Copyright 2019-2020 LibRaw LLC (info@libraw.org)
+ * Copyright 2019-2021 LibRaw LLC (info@libraw.org)
  *
  LibRaw uses code from dcraw.c -- Dave Coffin's raw photo decoder,
  dcraw.c is copyright 1997-2018 by Dave Coffin, dcoffin a cybercom o net.
@@ -648,7 +648,7 @@ void LibRaw::leaf_hdr_load_raw()
         pixel = raw_image + r * raw_width;
       read_shorts(pixel, raw_width);
       if (!filters && image && (row = r - top_margin) < height)
-        for (col = 0; col < width; col++)
+        for (col = 0; col < width && col + left_margin < raw_width; col++)
           image[row * width + col][c] = pixel[col + left_margin];
     }
   }
