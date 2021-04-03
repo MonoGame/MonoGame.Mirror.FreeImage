@@ -29,4 +29,6 @@ rd test\x64 /s /q
 rd test\Win32 /s /q
 rd test\Debug /s /q
 rd test\Release /s /q
+rd .vs /s /q
+
 
