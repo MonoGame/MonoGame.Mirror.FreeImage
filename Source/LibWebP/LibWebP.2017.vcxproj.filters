@@ -529,5 +529,8 @@
     <ClCompile Include="src\dsp\cost_neon.c">
       <Filter>Source Files\dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\lossless_sse41.c">
+      <Filter>Source Files\dsp</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
