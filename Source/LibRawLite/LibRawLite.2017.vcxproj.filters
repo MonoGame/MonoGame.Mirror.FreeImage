@@ -50,12 +50,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\libraw_c_api.cpp">
-      <Filter>Source Files\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\libraw_datastream.cpp">
-      <Filter>Source Files\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\decoders\canon_600.cpp">
       <Filter>Source Files\src\decoders</Filter>
     </ClCompile>
@@ -268,6 +262,9 @@
     </ClCompile>
     <ClCompile Include="src\write\file_write.cpp">
       <Filter>Source Files\src\write</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libraw_datastream.cpp">
+      <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

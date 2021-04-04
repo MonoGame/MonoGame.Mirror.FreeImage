@@ -195,7 +195,6 @@
     <ClCompile Include="src\demosaic\xtrans_demosaic.cpp" />
     <ClCompile Include="src\integration\dngsdk_glue.cpp" />
     <ClCompile Include="src\integration\rawspeed_glue.cpp" />
-    <ClCompile Include="src\libraw_c_api.cpp" />
     <ClCompile Include="src\libraw_datastream.cpp" />
     <ClCompile Include="src\metadata\adobepano.cpp" />
     <ClCompile Include="src\metadata\canon.cpp" />
