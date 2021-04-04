@@ -116,6 +116,12 @@
     <ClCompile Include="tif_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tif_lerc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tif_webp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="t4.h">
