@@ -38,12 +38,6 @@
 #include "memtrace.h"
 #endif
 
-#ifdef X86OPT_INLINE
-#define _FORCEINLINE __forceinline
-#else // X86OPT_INLINE
-#define _FORCEINLINE
-#endif // X86OPT_INLINE
-
 #if defined(WMP_OPT_SSE2) || defined(WMP_OPT_CC_DEC) || defined(WMP_OPT_TRFM_DEC)
 void StrDecOpt(CWMImageStrCodec* pSC);
 #endif // OPT defined
@@ -444,7 +438,7 @@ Int processMacroblockDec(CWMImageStrCodec * pSC)
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
 //inverseConvert: Inverse conversion from float RGB to RGBE
-static _FORCEINLINE void inverseConvert(PixelI iF, U8 *pRGB, U8 *pE)
+static void inverseConvert(PixelI iF, U8 *pRGB, U8 *pE)
 {
 	if (iF <= 0) {
 		*pRGB = *pE = 0;
@@ -465,7 +459,7 @@ static _FORCEINLINE void inverseConvert(PixelI iF, U8 *pRGB, U8 *pE)
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #endif // __ANSI__
 
-static _FORCEINLINE void inverseConvertRGBE(PixelI iFr, PixelI iFg, PixelI iFb, U8 *pR, U8 *pG, U8 *pB, U8 *pE)
+static void inverseConvertRGBE(PixelI iFr, PixelI iFg, PixelI iFb, U8 *pR, U8 *pG, U8 *pB, U8 *pE)
 {
 	U8 iShift;
 
@@ -492,7 +486,7 @@ static _FORCEINLINE void inverseConvertRGBE(PixelI iFr, PixelI iFg, PixelI iFb, 
 }
 
 //pixel to float 32!
-static _FORCEINLINE float pixel2float(PixelI _h, const char _c, const unsigned char _lm)
+static float pixel2float(PixelI _h, const char _c, const unsigned char _lm)
 {
 	union uif
 	{
@@ -535,7 +529,7 @@ static _FORCEINLINE float pixel2float(PixelI _h, const char _c, const unsigned c
 }
 
 //convert Half-16 to internal format, only need to handle sign bit
-static _FORCEINLINE U16 backwardHalf(PixelI hHalf)
+static U16 backwardHalf(PixelI hHalf)
 {
 	PixelI s;
 	s = hHalf >> 31;
@@ -544,7 +538,7 @@ static _FORCEINLINE U16 backwardHalf(PixelI hHalf)
 }
 
 
-Void interpolateUV(CWMImageStrCodec * pSC)
+void interpolateUV(CWMImageStrCodec * pSC)
 {
 	const COLORFORMAT cfExt = pSC->WMII.cfColorFormat;
 	const size_t cWidth = pSC->cmbWidth * 16;
@@ -639,7 +633,7 @@ Void interpolateUV(CWMImageStrCodec * pSC)
 }
 
 // write one MB row of Y_ONLY/CF_ALPHA/YUV_444/N_CHANNEL to output buffer
-Void outputNChannel(CWMImageStrCodec * pSC, size_t iFirstRow, size_t iFirstColumn, size_t cWidth, size_t cHeight, size_t iShift, PixelI iBias)
+void outputNChannel(CWMImageStrCodec * pSC, size_t iFirstRow, size_t iFirstColumn, size_t cWidth, size_t cHeight, size_t iShift, PixelI iBias)
 {
 	const CWMImageInfo* pII = &pSC->WMII;
 	const size_t cChannel = pII->cfColorFormat == Y_ONLY ? 1 : pSC->WMISCP.cChannel;
@@ -997,7 +991,8 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 				I32 * pRow = pDst;
 				for (iColumn = iFirstColumn; iColumn < cWidth; iColumn += 2) {
 					iIdx = ((iColumn >> 4) << 6) + idxCC_420[iRow >> 1][(iColumn >> 1) & 7];
-					u = pU[iIdx], v = pV[iIdx];
+					u = pU[iIdx];
+					v = pV[iIdx];
 
 					y0 = pY[((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15]];
 					y1 = pY[(((iColumn + 1) >> 4) << 8) + idxCC[iRow][(iColumn + 1) & 15]];
@@ -1037,17 +1032,25 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 						for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 							iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-							g = pY[iIdx] + iBias, r = -pU[iIdx], b = pV[iIdx];
+							g = pY[iIdx] + iBias;
+							r = -pU[iIdx];
+							b = pV[iIdx];
 							a = pA[iIdx] + iBias;
 
 							_ICC(r, g, b);
 
 							pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
 							if ((g | b | r | a) & ~0xff) {
-								pDst[iR] = _CLIP8(r), pDst[1] = _CLIP8(g), pDst[iB] = _CLIP8(b), pDst[3] = _CLIP8(a);
+								pDst[iR] = _CLIP8(r);
+								pDst[1] = _CLIP8(g);
+								pDst[iB] = _CLIP8(b);
+								pDst[3] = _CLIP8(a);
 							}
 							else {
-								pDst[iR] = (U8)r, pDst[1] = (U8)g, pDst[iB] = (U8)b, pDst[3] = (U8)(a);
+								pDst[iR] = (U8)r;
+								pDst[1] = (U8)g;
+								pDst[iB] = (U8)b;
+								pDst[3] = (U8)(a);
 							}
 						}
 					}
@@ -1057,17 +1060,30 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 						for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 							iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-							g = pY[iIdx] + iBias, r = -pU[iIdx], b = pV[iIdx];
+							g = pY[iIdx] + iBias;
+							r = -pU[iIdx];
+							b = pV[iIdx];
 							a = pA[iIdx] + iBias;
 
 							_ICC(r, g, b);
 
-							g >>= iShift, b >>= iShift, r >>= iShift, a >>= iShift;
+							g >>= iShift;
+							b >>= iShift;
+							r >>= iShift;
+							a >>= iShift;
 							pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
-							if ((g | b | r | a) & ~0xff)
-								pDst[iR] = _CLIP8(r), pDst[1] = _CLIP8(g), pDst[iB] = _CLIP8(b), pDst[3] = _CLIP8(a);
-							else
-								pDst[iR] = (U8)r, pDst[1] = (U8)g, pDst[iB] = (U8)b, pDst[3] = (U8)(a);
+							if ((g | b | r | a) & ~0xff) {
+								pDst[iR] = _CLIP8(r);
+								pDst[1] = _CLIP8(g);
+								pDst[iB] = _CLIP8(b);
+								pDst[3] = _CLIP8(a);
+							}
+							else {
+								pDst[iR] = (U8)r;
+								pDst[1] = (U8)g;
+								pDst[iB] = (U8)b;
+								pDst[3] = (U8)(a);
+							}
 						}
 					}
 				}
@@ -1078,15 +1094,23 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 						for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 							iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-							g = pY[iIdx] + iBias, r = -pU[iIdx], b = pV[iIdx];
+							g = pY[iIdx] + iBias;
+							r = -pU[iIdx];
+							b = pV[iIdx];
 
 							_ICC(r, g, b);
 
 							pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
-							if ((g | b | r) & ~0xff)
-								pDst[iR] = _CLIP8(r), pDst[1] = _CLIP8(g), pDst[iB] = _CLIP8(b);
-							else
-								pDst[iR] = (U8)r, pDst[1] = (U8)g, pDst[iB] = (U8)b;
+							if ((g | b | r) & ~0xff) {
+								pDst[iR] = _CLIP8(r);
+								pDst[1] = _CLIP8(g);
+								pDst[iB] = _CLIP8(b);
+							}
+							else {
+								pDst[iR] = (U8)r;
+								pDst[1] = (U8)g;
+								pDst[iB] = (U8)b;
+							}
 						}
 					}
 				}
@@ -1095,16 +1119,24 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 						for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 							iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-							g = pY[iIdx] + iBias, r = -pU[iIdx], b = pV[iIdx];
+							g = pY[iIdx] + iBias;
+							r = -pU[iIdx];
+							b = pV[iIdx];
 
 							_ICC(r, g, b);
 
-							g >>= iShift, b >>= iShift, r >>= iShift;
+							g >>= iShift;
+							b >>= iShift;
+							r >>= iShift;
 							pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
-							if ((g | b | r) & ~0xff)
+							if ((g | b | r) & ~0xff) {
 								pDst[iR] = _CLIP8(r), pDst[1] = _CLIP8(g), pDst[iB] = _CLIP8(b);
-							else
-								pDst[iR] = (U8)r, pDst[1] = (U8)g, pDst[iB] = (U8)b;
+							}
+							else {
+								pDst[iR] = (U8)r;
+								pDst[1] = (U8)g;
+								pDst[iB] = (U8)b;
+							}
 						}
 					}
 				}
@@ -1127,7 +1159,8 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 			for (iRow = iFirstRow; iRow < cHeight; iRow++) {
 				for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn += 2) {
 					iIdx = ((iColumn >> 4) << 7) + idxCC[iRow][(iColumn >> 1) & 7];
-					u = ((pU[iIdx] + iBias) >> iShift), v = ((pV[iIdx] + iBias) >> iShift);
+					u = ((pU[iIdx] + iBias) >> iShift);
+					v = ((pV[iIdx] + iBias) >> iShift);
 
 					y0 = ((pY[((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15]] + iBias) >> iShift);
 					y1 = ((pY[(((iColumn + 1) >> 4) << 8) + idxCC[iRow][(iColumn + 1) & 15]] + iBias) >> iShift);
@@ -1135,10 +1168,16 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 					pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn >> 1] + iY;
 					if ((y0 | y1 | u | v) & ~0xff) {
 						//UYVY
-						pDst[0] = _CLIP8(u), pDst[1] = _CLIP8(y0), pDst[2] = _CLIP8(v), pDst[3] = _CLIP8(y1);
+						pDst[0] = _CLIP8(u);
+						pDst[1] = _CLIP8(y0);
+						pDst[2] = _CLIP8(v);
+						pDst[3] = _CLIP8(y1);
 					}
 					else {
-						pDst[0] = (U8)u, pDst[1] = (U8)y0, pDst[2] = (U8)v, pDst[3] = (U8)y1;
+						pDst[0] = (U8)u;
+						pDst[1] = (U8)y0;
+						pDst[2] = (U8)v;
+						pDst[3] = (U8)y1;
 					}
 				}
 			}
@@ -1155,7 +1194,8 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 			for (iRow = iFirstRow; iRow < cHeight; iRow += 2) {
 				for (iColumn = iFirstColumn, iY = pOffsetY[iRow >> 1]; iColumn < cWidth; iColumn += 2) {
 					iIdx = ((iColumn >> 4) << 6) + idxCC_420[iRow >> 1][(iColumn >> 1) & 7];
-					u = ((pU[iIdx] + iBias) >> iShift), v = ((pV[iIdx] + iBias) >> iShift);
+					u = ((pU[iIdx] + iBias) >> iShift);
+					v = ((pV[iIdx] + iBias) >> iShift);
 
 					y0 = ((pY[((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15]] + iBias) >> iShift);
 					y1 = ((pY[(((iColumn + 1) >> 4) << 8) + idxCC[iRow][(iColumn + 1) & 15]] + iBias) >> iShift);
@@ -1164,10 +1204,20 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 
 					pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn >> 1] + iY;
 					if ((y0 | y1 | y2 | y3 | u | v) & ~0xff) {
-						pDst[i0] = _CLIP8(y0), pDst[i1] = _CLIP8(y1), pDst[i2] = _CLIP8(y2), pDst[i3] = _CLIP8(y3), pDst[4] = _CLIP8(u), pDst[5] = _CLIP8(v);
+						pDst[i0] = _CLIP8(y0);
+						pDst[i1] = _CLIP8(y1);
+						pDst[i2] = _CLIP8(y2);
+						pDst[i3] = _CLIP8(y3);
+						pDst[4] = _CLIP8(u);
+						pDst[5] = _CLIP8(v);
 					}
 					else {
-						pDst[i0] = (U8)y0, pDst[i1] = (U8)y1, pDst[i2] = (U8)y2, pDst[i3] = (U8)y3, pDst[4] = (U8)u, pDst[5] = (U8)v;
+						pDst[i0] = (U8)y0;
+						pDst[i1] = (U8)y1;
+						pDst[i2] = (U8)y2;
+						pDst[i3] = (U8)y3;
+						pDst[4] = (U8)u;
+						pDst[5] = (U8)v;
 					}
 				}
 			}
@@ -1183,7 +1233,10 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 				for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 					iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-					m = -pY[iIdx] + iBias1, c = pU[iIdx], y = -pV[iIdx], k = pK[iIdx] + iBias2;
+					m = -pY[iIdx] + iBias1;
+					c = pU[iIdx];
+					y = -pV[iIdx];
+					k = pK[iIdx] + iBias2;
 
 					_ICC_CMYK(c, m, y, k); // color conversion
 
@@ -1191,10 +1244,16 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 
 					pDst = (U8 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
 					if ((c | m | y | k) & ~0xff) {
-						pDst[0] = _CLIP8(c), pDst[1] = _CLIP8(m), pDst[2] = _CLIP8(y), pDst[3] = _CLIP8(k);
+						pDst[0] = _CLIP8(c);
+						pDst[1] = _CLIP8(m);
+						pDst[2] = _CLIP8(y);
+						pDst[3] = _CLIP8(k);
 					}
 					else {
-						pDst[0] = (U8)c, pDst[1] = (U8)m, pDst[2] = (U8)y, pDst[3] = (U8)k;
+						pDst[0] = (U8)c;
+						pDst[1] = (U8)m;
+						pDst[2] = (U8)y;
+						pDst[3] = (U8)k;
 					}
 				}
 			}
@@ -1209,7 +1268,9 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 				for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 					iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-					g = pY[iIdx] + iBias2, r = -pU[iIdx], b = pV[iIdx];
+					g = pY[iIdx] + iBias2;
+					r = -pU[iIdx];
+					b = pV[iIdx];
 
 					_ICC(r, g, b);
 
@@ -1239,18 +1300,28 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 					for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 						iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-						g = pY[iIdx] + iBias, r = -pU[iIdx], b = pV[iIdx];
+						g = pY[iIdx] + iBias;
+						r = -pU[iIdx];
+						b = pV[iIdx];
 
 						_ICC(r, g, b);
 
-						g <<= nLen, b <<= nLen, r <<= nLen;
+						g <<= nLen;
+						b <<= nLen;
+						r <<= nLen;
 
 						pDst = (U16 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
 
-						if ((g | b | r) & ~0xffff)
-							pDst[0] = _CLIPU16(r), pDst[1] = _CLIPU16(g), pDst[2] = _CLIPU16(b);
-						else
-							pDst[0] = (U16)r, pDst[1] = (U16)g, pDst[2] = (U16)b;
+						if ((g | b | r) & ~0xffff) {
+							pDst[0] = _CLIPU16(r);
+							pDst[1] = _CLIPU16(g);
+							pDst[2] = _CLIPU16(b);
+						}
+						else {
+							pDst[0] = (U16)r;
+							pDst[1] = (U16)g;
+							pDst[2] = (U16)b;
+						}
 					}
 				}
 			}
@@ -1259,16 +1330,26 @@ Int outputMBRow(CWMImageStrCodec * pSC)
 					for (iColumn = iFirstColumn, iY = pOffsetY[iRow]; iColumn < cWidth; iColumn++) {
 						iIdx = ((iColumn >> 4) << 8) + idxCC[iRow][iColumn & 15];
 
-						g = pY[iIdx] + iBias, r = -pU[iIdx], b = pV[iIdx];
+						g = pY[iIdx] + iBias;
+						r = -pU[iIdx];
+						b = pV[iIdx];
 
 						_ICC(r, g, b);
 
-						g = (g >> iShift) << nLen, b = (b >> iShift) << nLen, r = (r >> iShift) << nLen;
+						g = (g >> iShift) << nLen;
+						b = (b >> iShift) << nLen;
+						r = (r >> iShift) << nLen;
 						pDst = (U16 *)pSC->WMIBI.pv + pOffsetX[iColumn] + iY;
-						if ((g | b | r) & ~0xffff)
-							pDst[0] = _CLIPU16(r), pDst[1] = _CLIPU16(g), pDst[2] = _CLIPU16(b);
-						else
-							pDst[0] = (U16)r, pDst[1] = (U16)g, pDst[2] = (U16)b;
+						if ((g | b | r) & ~0xffff) {
+							pDst[0] = _CLIPU16(r);
+							pDst[1] = _CLIPU16(g);
+							pDst[2] = _CLIPU16(b);
+						}
+						else {
+							pDst[0] = (U16)r;
+							pDst[1] = (U16)g;
+							pDst[2] = (U16)b;
+						}
 					}
 				}
 			}
@@ -1759,7 +1840,7 @@ break
 }
 
 // Y_ONLY/CF_ALPHA/YUV_444/N_CHANNEL thumbnail decode
-Void outputNChannelThumbnail(CWMImageStrCodec * pSC, const PixelI cMul, const size_t rShiftY, size_t iFirstRow, size_t iFirstColumn)
+void outputNChannelThumbnail(CWMImageStrCodec * pSC, const PixelI cMul, const size_t rShiftY, size_t iFirstRow, size_t iFirstColumn)
 {
 	const size_t tScale = pSC->m_Dparam->cThumbnailScale;
 	const size_t cWidth = (pSC->m_Dparam->cROIRightX + 1);
@@ -2444,9 +2525,7 @@ Int decodeThumbnail(CWMImageStrCodec * pSC)
 
 				_ICC(r, g, b);
 				pDst = (U32 *)pSC->WMIBI.pv + pOffsetX[iColumn >> nBits] + iY;
-				pDst[0] = (U32)_CLIP2(0, r, 1023) +
-					(((U32)_CLIP2(0, g, 1023)) << 10) +
-					(((U32)_CLIP2(0, b, 1023)) << 20);
+				pDst[0] = (U32)_CLIP2(0, r, 1023) +	(((U32)_CLIP2(0, g, 1023)) << 10) +	(((U32)_CLIP2(0, b, 1023)) << 20);
 			}
 		}
 	}
@@ -2748,7 +2827,7 @@ Int initLookupTables(CWMImageStrCodec* pSC)
 	return ICERR_OK;
 }
 
-Void setROI(CWMImageStrCodec* pSC)
+void setROI(CWMImageStrCodec* pSC)
 {
 	CWMImageInfo * pWMII = &pSC->WMII;
 	CWMIStrCodecParam * pSCP = &pSC->WMISCP;
@@ -3318,7 +3397,7 @@ EXTERN_C Int WMPhotoValidate(CWMImageInfo * pII, CWMIStrCodecParam * pSCP)
 /*************************************************************************
   Initialization of CWMImageStrCodec struct
 *************************************************************************/
-static Void InitializeStrDec(CWMImageStrCodec *pSC, const CCoreParameters *pParams, const CWMImageStrCodec *pSCIn)
+static void InitializeStrDec(CWMImageStrCodec *pSC, const CCoreParameters *pParams, const CWMImageStrCodec *pSCIn)
 {
     // copy core parameters
     memcpy (&(pSC->m_param), pParams, sizeof (CCoreParameters));
@@ -3618,8 +3697,9 @@ Int ImageStrDecDecode(CTXSTRCODEC ctxSC, const CWMImageBufferInfo* pBI
 #ifndef REENTRANT_MODE
 	if (pSC->WMII.bdBitDepth == BD_1) {
 		size_t i;
-		for (i = 0; i < pSC->WMIBI.cLine; i++)
+		for (i = 0; i < pSC->WMIBI.cLine; i++) {
 			memset(pSC->WMIBI.pv, 0, pSC->WMIBI.cbStride);
+		}
 	}
 #endif
 
