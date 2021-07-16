@@ -17,6 +17,7 @@ Month day, 2021 - 3.19.0
 - [Herve Drolon] removed the 32-bit build option from the MSVC build options
 + [ovnz] added the 'ExtraSamples' tag key to the FIMD_EXIF_MAIN & FIMD_EXIF_EXIF metadata models
 + [Herve Drolon] added support for Exif v2.3.2 tags
++ [Milos Komarcevic] improved TIFF compression when using float images with TIFF_ADOBE_DEFLATE or TIFF_LZW flag
 * [Martin Strunz] fixed uninitialized variable in tmoReinhard05.cpp
 * [realdolos] improved performance of _MemoryReadProc function (see FreeImageIO.cpp)
 * [Herve Drolon] fixed PluginBMP, PluginDDS for compilation under Big Endian OS (see FREEIMAGE_BIGENDIAN)
@@ -34,6 +35,7 @@ Month day, 2021 - 3.19.0
 * [Mihail Naydenov] improved TIFF plugin against malicious images
 * [Mihail Naydenov] improved J2K plugin against malicious images
 * [Mihail Naydenov] fixed FreeImage_OpenMultiBitmap with usage of filenames longer than 255 characters & Windows Long Path disabled
+* [Milos Komarcevic] TIFF images saved with TIFF_DEFLATE compression are saved to images with TIFF_ADOBE_DEFLATE compresssion (TIFF_DEFLATE is obsolete)
 
 July 31st, 2018 - 3.18.0
 ! FreeImage now uses ZLib 1.2.11
