@@ -649,39 +649,53 @@ WriteImageType(TIFF *tiff, FREE_IMAGE_TYPE fit) {
 /**
 Select the compression algorithm
 @param tiff LibTIFF TIFF Handle
-@param 
+@param tiff
+@param bitspersample
+@param samplesperpixel
+@param photometric
+@param flags
 */
 static void 
 WriteCompression(TIFF *tiff, uint16_t bitspersample, uint16_t samplesperpixel, uint16_t photometric, int flags) {
-	uint16_t compression;
+	uint16_t compression = COMPRESSION_LZW;
 	uint16_t bitsperpixel = bitspersample * samplesperpixel;
 
-	if(photometric == PHOTOMETRIC_LOGLUV) {
+	if (photometric == PHOTOMETRIC_LOGLUV) {
 		compression = COMPRESSION_SGILOG;
-	} else if ((flags & TIFF_PACKBITS) == TIFF_PACKBITS) {
+	}
+	else if ((flags & TIFF_PACKBITS) == TIFF_PACKBITS) {
 		compression = COMPRESSION_PACKBITS;
-	} else if ((flags & TIFF_DEFLATE) == TIFF_DEFLATE) {
-		compression = COMPRESSION_DEFLATE;
-	} else if ((flags & TIFF_ADOBE_DEFLATE) == TIFF_ADOBE_DEFLATE) {
+	}
+	else if ((flags & TIFF_DEFLATE) == TIFF_DEFLATE) {
+		// compression = COMPRESSION_DEFLATE is obsolete, writers should always use COMPRESSION_ADOBE_DEFLATE value
 		compression = COMPRESSION_ADOBE_DEFLATE;
-	} else if ((flags & TIFF_NONE) == TIFF_NONE) {
+	}
+	else if ((flags & TIFF_ADOBE_DEFLATE) == TIFF_ADOBE_DEFLATE) {
+		compression = COMPRESSION_ADOBE_DEFLATE;
+	}
+	else if ((flags & TIFF_NONE) == TIFF_NONE) {
 		compression = COMPRESSION_NONE;
-	} else if ((bitsperpixel == 1) && ((flags & TIFF_CCITTFAX3) == TIFF_CCITTFAX3)) {
+	}
+	else if ((bitsperpixel == 1) && ((flags & TIFF_CCITTFAX3) == TIFF_CCITTFAX3)) {
 		compression = COMPRESSION_CCITTFAX3;
-	} else if ((bitsperpixel == 1) && ((flags & TIFF_CCITTFAX4) == TIFF_CCITTFAX4)) {
+	}
+	else if ((bitsperpixel == 1) && ((flags & TIFF_CCITTFAX4) == TIFF_CCITTFAX4)) {
 		compression = COMPRESSION_CCITTFAX4;
-	} else if ((flags & TIFF_LZW) == TIFF_LZW) {
+	}
+	else if ((flags & TIFF_LZW) == TIFF_LZW) {
 		compression = COMPRESSION_LZW;
-	} else if ((flags & TIFF_JPEG) == TIFF_JPEG) {
-		if(((bitsperpixel == 8) && (photometric != PHOTOMETRIC_PALETTE)) || (bitsperpixel == 24)) {
+	}
+	else if ((flags & TIFF_JPEG) == TIFF_JPEG) {
+		if (((bitsperpixel == 8) && (photometric != PHOTOMETRIC_PALETTE)) || (bitsperpixel == 24)) {
 			compression = COMPRESSION_JPEG;
 			// RowsPerStrip must be multiple of 8 for JPEG
-			uint32_t rowsperstrip = (uint32_t) -1;
+			uint32_t rowsperstrip = (uint32_t)-1;
 			rowsperstrip = TIFFDefaultStripSize(tiff, rowsperstrip);
-            rowsperstrip = rowsperstrip + (8 - (rowsperstrip % 8));
+			rowsperstrip = rowsperstrip + (8 - (rowsperstrip % 8));
 			// overwrite previous RowsPerStrip
 			TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, rowsperstrip);
-		} else {
+		}
+		else {
 			// default to LZW
 			compression = COMPRESSION_LZW;
 		}
@@ -689,35 +703,35 @@ WriteCompression(TIFF *tiff, uint16_t bitspersample, uint16_t samplesperpixel, u
 	else {
 		// default compression scheme
 
-		switch(bitsperpixel) {
-			case 1:
-				compression = COMPRESSION_CCITTFAX4;
-				break;
+		switch (bitsperpixel) {
+		case 1:
+			compression = COMPRESSION_CCITTFAX4;
+			break;
 
-			case 4:
-			case 8:
-			case 16:
-			case 24:
-			case 32:
-				compression = COMPRESSION_LZW;
-				break;
-			case 48:
-			case 64:
-			case 96:
-			case 128:
-				compression = COMPRESSION_LZW;
-				break;
+		case 4:
+		case 8:
+		case 16:
+		case 24:
+		case 32:
+			compression = COMPRESSION_LZW;
+			break;
+		case 48:
+		case 64:
+		case 96:
+		case 128:
+			compression = COMPRESSION_LZW;
+			break;
 
-			default :
-				compression = COMPRESSION_NONE;
-				break;
+		default:
+			compression = COMPRESSION_NONE;
+			break;
 		}
 	}
 
 	TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression);
 
-	if(compression == COMPRESSION_LZW) {
-		// This option is only meaningful with LZW compression: a predictor value of 2 
+	if ((compression == COMPRESSION_LZW) || (compression == COMPRESSION_ADOBE_DEFLATE)) {
+		// This option is only meaningful with LZW or ADOBE DEFLATE compression: a predictor value of 2 
 		// causes each scanline of the output image to undergo horizontal differencing 
 		// before it is encoded; a value of 1 forces each scanline to be encoded without differencing.
 
@@ -726,27 +740,30 @@ WriteCompression(TIFF *tiff, uint16_t bitspersample, uint16_t samplesperpixel, u
 		// and many palette-color images. But natural 24-bit color images and some 8-bit 
 		// grayscale images do much better with differencing.
 
-		if((bitspersample == 8) || (bitspersample == 16)) {
+		// set the default predictor value
+		TIFFSetField(tiff, TIFFTAG_PREDICTOR, PREDICTOR_NONE);
+
+		if ((bitspersample == 8) || (bitspersample == 16)) {
 			if ((bitsperpixel >= 8) && (photometric != PHOTOMETRIC_PALETTE)) {
-				TIFFSetField(tiff, TIFFTAG_PREDICTOR, 2);
-			} else {
-				TIFFSetField(tiff, TIFFTAG_PREDICTOR, 1);
+				TIFFSetField(tiff, TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
 			}
-		} else {
-			TIFFSetField(tiff, TIFFTAG_PREDICTOR, 1);
+		}
+		else if ((photometric == PHOTOMETRIC_RGB) && (bitspersample == 32) && ((samplesperpixel == 3) || (samplesperpixel == 4))) {
+			// this is a RGB or RGBA float image, set a floating point predictor
+			TIFFSetField(tiff, TIFFTAG_PREDICTOR, PREDICTOR_FLOATINGPOINT);
 		}
 	}
-	else if((compression == COMPRESSION_CCITTFAX3) || (compression == COMPRESSION_CCITTFAX4)) {
+	else if ((compression == COMPRESSION_CCITTFAX3) || (compression == COMPRESSION_CCITTFAX4)) {
 		uint32_t imageLength = 0;
 		TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &imageLength);
 		// overwrite previous RowsPerStrip
 		TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, imageLength);
 
-		if(compression == COMPRESSION_CCITTFAX3) {
+		if (compression == COMPRESSION_CCITTFAX3) {
 			// try to be compliant with the TIFF Class F specification
 			// that documents the TIFF tags specific to FAX applications
 			// see http://palimpsest.stanford.edu/bytopic/imaging/std/tiff-f.html
-			uint32_t group3options = GROUP3OPT_2DENCODING | GROUP3OPT_FILLBITS;	
+			uint32_t group3options = GROUP3OPT_2DENCODING | GROUP3OPT_FILLBITS;
 			TIFFSetField(tiff, TIFFTAG_GROUP3OPTIONS, group3options);	// 2d-encoded, has aligned EOL
 			TIFFSetField(tiff, TIFFTAG_FILLORDER, FILLORDER_LSB2MSB);	// lsb-to-msb fillorder
 		}
