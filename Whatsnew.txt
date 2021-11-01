@@ -7,9 +7,9 @@ What's New for FreeImage
 
 Month day, 2021 - 3.19.0
 ! FreeImage now uses LibPNG 1.6.37
-! FreeImage now uses LibTIFF 4.3.0 (GIT patch 2021-07-09)
-! FreeImage now uses LibWebP 1.2.0 (GIT patch 2021-07-14)
-! FreeImage now uses LibRaw 0.20.2 (GIT patch 2021-06-02)
+! FreeImage now uses LibTIFF 4.3.0 (GIT patch 2021-10-26)
+! FreeImage now uses LibWebP 1.2.1 (GIT patch 2021-10-29)
+! FreeImage now uses LibRaw 0.20.2 (GIT patch 2021-10-26)
 ! FreeImage now uses LibJPEG 9d
 ! FreeImage now uses LibJXR 1.2 (fixed FreeImage version)
 ! FreeImage no longer support a 32-bit DLL or Lib version
@@ -36,6 +36,9 @@ Month day, 2021 - 3.19.0
 * [Mihail Naydenov] improved J2K plugin against malicious images
 * [Mihail Naydenov] fixed FreeImage_OpenMultiBitmap with usage of filenames longer than 255 characters & Windows Long Path disabled
 * [Milos Komarcevic] TIFF images saved with TIFF_DEFLATE compression are saved to images with TIFF_ADOBE_DEFLATE compresssion (TIFF_DEFLATE is obsolete)
+* [Patrick Pelletier] fixed FreeImage_FlipVertical behavior with very large images
+* [Aleks] fixed FreeImage_SeekMemory behavior with 64-bit malicious images
+* [Herve Drolon] fixed C++11 warnings
 
 July 31st, 2018 - 3.18.0
 ! FreeImage now uses ZLib 1.2.11
