@@ -37,6 +37,7 @@ Month day, 2021 - 3.19.0
 * [Mihail Naydenov] fixed FreeImage_OpenMultiBitmap with usage of filenames longer than 255 characters & Windows Long Path disabled
 * [Milos Komarcevic] TIFF images saved with TIFF_DEFLATE compression are saved to images with TIFF_ADOBE_DEFLATE compresssion (TIFF_DEFLATE is obsolete)
 * [Patrick Pelletier] fixed FreeImage_FlipVertical behavior with very large images
+* [Patrick Pelletier] fixed FreeImage_Paste behavior with very large images
 * [Aleks] fixed FreeImage_SeekMemory behavior with 64-bit malicious images
 * [Herve Drolon] fixed C++11 warnings
 
