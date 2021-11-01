@@ -244,7 +244,8 @@ rgbe_ReadHeader(FreeImageIO *io, fi_handle handle, unsigned *width, unsigned *he
 		}
 		else if((buf[0] == '#') && (buf[1] == 0x20)) {
 			header_info->valid |= RGBE_VALID_COMMENT;
-			strcpy(header_info->comment, buf);
+			strncpy(header_info->comment, buf, HDR_MAXLINE - 1);
+			header_info->comment[HDR_MAXLINE - 1] = '\0';
 		}
 	}
 	if(!bHeaderFound || !bFormatFound) {
