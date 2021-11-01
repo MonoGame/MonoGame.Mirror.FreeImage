@@ -27,6 +27,7 @@
 #include "Utilities.h"
 #include "FreeImageTag.h"
 #include "FIRational.h"
+#include <inttypes.h>
 
 #define MAX_TEXT_EXTENT	512
 
@@ -54,10 +55,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			BYTE *pvalue = (BYTE*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld",	(LONG) pvalue[0]);
+			sprintf(format, "%d", (LONG) pvalue[0]);
 			buffer += format;
-			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld",	(LONG) pvalue[i]);
+			for (i = 1; i < tag_count; i++) {
+				sprintf(format, " %d", (LONG)pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -78,10 +79,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			DWORD *pvalue = (DWORD *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%lu", pvalue[0]);
+			sprintf(format, "%u", pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %lu",	pvalue[i]);
+				sprintf(format, " %u",	pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -90,10 +91,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			DWORD *pvalue = (DWORD*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld/%ld", pvalue[0], pvalue[1]);
+			sprintf(format, "%d/%d", pvalue[0], pvalue[1]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld/%ld", pvalue[2*i], pvalue[2*i+1]);
+				sprintf(format, " %d/%d", pvalue[2*i], pvalue[2*i+1]);
 				buffer += format;
 			}
 			break;
@@ -102,10 +103,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			char *pvalue = (char*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld",	(LONG) pvalue[0]);
+			sprintf(format, "%d",	(LONG) pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld",	(LONG) pvalue[i]);
+				sprintf(format, " %d",	(LONG) pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -126,10 +127,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			LONG *pvalue = (LONG *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld", pvalue[0]);
+			sprintf(format, "%d", pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld",	pvalue[i]);
+				sprintf(format, " %d",	pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -138,10 +139,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			LONG *pvalue = (LONG*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld/%ld", pvalue[0], pvalue[1]);
+			sprintf(format, "%d/%d", pvalue[0], pvalue[1]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld/%ld", pvalue[2*i], pvalue[2*i+1]);
+				sprintf(format, " %d/%d", pvalue[2*i], pvalue[2*i+1]);
 				buffer += format;
 			}
 			break;
@@ -153,7 +154,7 @@ ConvertAnyTag(FITAG *tag) {
 			sprintf(format, "%f", (double) pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%f", (double) pvalue[i]);
+				sprintf(format, " %f", (double) pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -165,7 +166,7 @@ ConvertAnyTag(FITAG *tag) {
 			sprintf(format, "%f", pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%f", pvalue[i]);
+				sprintf(format, " %f", pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -199,10 +200,11 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			UINT64 *pvalue = (UINT64 *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%lld", pvalue[0]);
+			sprintf(format, "%" SCNu64, pvalue[0]);
+
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%lld", pvalue[i]);
+				sprintf(format, " %" SCNu64, pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -212,10 +214,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			UINT64 *pvalue = (UINT64 *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%llX", pvalue[0]);
+			sprintf(format, "%" SCNu64, pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%llX", pvalue[i]);
+				sprintf(format, " %" SCNu64, pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -225,10 +227,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			INT64 *pvalue = (INT64 *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%lld", pvalue[0]);
+			sprintf(format, "%" SCNd64, pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%lld", pvalue[i]);
+				sprintf(format, " %" SCNd64, pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -239,8 +241,9 @@ ConvertAnyTag(FITAG *tag) {
 		default:
 		{
 			int max_size = MIN((int)FreeImage_GetTagLength(tag), (int)MAX_TEXT_EXTENT);
-			if(max_size == MAX_TEXT_EXTENT)
+			if (max_size == MAX_TEXT_EXTENT) {
 				max_size--;
+			}
 			memcpy(format, (char*)FreeImage_GetTagValue(tag), max_size);
 			format[max_size] = '\0';
 			buffer += format;
