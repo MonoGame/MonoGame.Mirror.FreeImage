@@ -105,8 +105,7 @@ extern "C"
   }
 #endif
 
-#if defined(_WIN32) && !defined(__MINGW32__) && defined(_MSC_VER) &&           \
-    (_MSC_VER > 1310)
+#ifdef LIBRAW_WIN32_UNICODEPATHS
   int libraw_open_wfile(libraw_data_t *lr, const wchar_t *file)
   {
     if (!lr)
@@ -320,6 +319,14 @@ extern "C"
       return;
     LibRaw *ip = (LibRaw *)lr->parent_class;
     ip->imgdata.params.output_color = value;
+  }
+
+  DllDef void libraw_set_adjust_maximum_thr(libraw_data_t *lr, float value)
+  {
+    if (!lr)
+      return;
+    LibRaw *ip = (LibRaw *)lr->parent_class;
+    ip->imgdata.params.adjust_maximum_thr = value;
   }
 
   DllDef void libraw_set_output_bps(libraw_data_t *lr, int value)

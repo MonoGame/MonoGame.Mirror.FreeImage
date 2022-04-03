@@ -587,7 +587,9 @@ void LibRaw::processCanonCameraInfo(unsigned long long id, uchar *CameraInfo,
 
 void LibRaw::Canon_CameraSettings(unsigned len)
 {
-  fseek(ifp, 10, SEEK_CUR);
+  fseek(ifp, 6, SEEK_CUR);
+  imCanon.Quality = get2();   // 3
+  get2();
   imgdata.shootinginfo.DriveMode = get2(); // 5
   get2();
   imgdata.shootinginfo.FocusMode = get2(); // 7
@@ -1216,6 +1218,7 @@ void LibRaw::parseCanonMakernotes(unsigned tag, unsigned type, unsigned len, uns
       CR3_ColorData(0x0047);
       break;
 
+    case 1770: // R5 CRM
     case 2024: // -1D X Mark III; ColorDataSubVer: 32
     case 3656: // R5, R6; ColorDataSubVer: 33
       imCanon.ColorDataVer = 10;
@@ -1284,6 +1287,9 @@ void LibRaw::parseCanonMakernotes(unsigned tag, unsigned type, unsigned len, uns
       imCanon.multishot[3] = get4();
     }
     FORC4 cam_mul[c] = 1024;
+  } else if (tag == 0x4026) {
+    fseek(ifp, 44, SEEK_CUR);
+    imCanon.CanonLog = get4();
   }
 #undef CR3_ColorData
 #undef sRAW_WB

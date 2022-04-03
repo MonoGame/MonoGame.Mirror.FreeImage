@@ -42,7 +42,8 @@ static const struct
     {LIBRAW_CAMERAMAKER_Nikon,          "Nikon"},
     {LIBRAW_CAMERAMAKER_Nokia,          "Nokia"},
     {LIBRAW_CAMERAMAKER_Olympus,        "Olympus"},
-    {LIBRAW_CAMERAMAKER_Ricoh,          "Ricoh"},
+    {LIBRAW_CAMERAMAKER_OmDigital,		"OM Digital"},
+    {LIBRAW_CAMERAMAKER_Ricoh,			"Ricoh"},
     {LIBRAW_CAMERAMAKER_Pentax,         "Pentax"},
     {LIBRAW_CAMERAMAKER_PhaseOne,       "Phase One"},
     {LIBRAW_CAMERAMAKER_PhaseOne,       "PhaseOne"},
@@ -434,6 +435,7 @@ void LibRaw::identify()
   CM_found = 0;
   memset(tiff_ifd, 0, sizeof tiff_ifd);
   libraw_internal_data.unpacker_data.crx_track_selected = -1;
+  libraw_internal_data.unpacker_data.crx_track_count = -1;
   libraw_internal_data.unpacker_data.CR3_CTMDtag = 0;
   imHassy.nIFD_CM[0] = imHassy.nIFD_CM[1] = -1;
   imKodak.ISOCalibrationGain = 1.0f;
@@ -706,9 +708,10 @@ void LibRaw::identify()
 
     szAtomList = ifp->size();
     err = parseCR3(0ULL, szAtomList, nesting, AtomNameStack, nTrack, TrackType);
+    libraw_internal_data.unpacker_data.crx_track_count = nTrack;
     if ((err == 0 || err == -14) &&
         nTrack >= 0) // no error, or too deep nesting
-      selectCRXTrack(nTrack);
+      selectCRXTrack();
   }
 
   if (dng_version)
@@ -2210,11 +2213,14 @@ void LibRaw::identify_finetune_dcr(char head[64], int fsize, int flen)
 			if (width == 4080) // Olympus E-PM1, E-PL3, E-P3;
 				width -= 24;
 
-			if (width == 10400) // Olympus PEN-F, E-M1-II, E-M1-III, E-M1X
+			if (width == 10400) // Olympus PEN-F, E-M1-II, E-M1-III, E-M1X, OM-1
 				width -= 12;
 
 			if (width == 8200) // E-M1-III in 50Mp mode, E-M1X
 				width -= 30;
+
+			if (width == 8180) // OM-1 in 50Mp
+              width -= 10;
 
 			if (width == 9280) { // Olympus E-M5 Mark II;
 				width -= 6;
