@@ -6,10 +6,11 @@ What's New for FreeImage
 + : added
 
 Month day, 2021 - 3.19.0
+! FreeImage now uses ZLib 1.2.12
 ! FreeImage now uses LibPNG 1.6.37
 ! FreeImage now uses LibTIFF 4.3.0 (GIT patch 2021-10-26)
 ! FreeImage now uses LibWebP 1.2.1 (GIT patch 2021-10-29)
-! FreeImage now uses LibRaw 0.20.2 (GIT patch 2021-10-26)
+! FreeImage now uses LibRaw 0.20.2 (GIT patch 2022-02-15)
 ! FreeImage now uses LibJPEG 9d
 ! FreeImage now uses LibJXR 1.2 (fixed FreeImage version)
 ! FreeImage no longer support a 32-bit DLL or Lib version
