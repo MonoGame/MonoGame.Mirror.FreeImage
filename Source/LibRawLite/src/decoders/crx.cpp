@@ -218,10 +218,10 @@ static inline void crxFillBuffer(CrxBitstream *bitStrm)
 #ifndef LIBRAW_USE_OPENMP
       bitStrm->input->unlock();
 #endif
-      if (bitStrm->curBufSize < 1) // nothing read
-        throw LIBRAW_EXCEPTION_IO_EOF;
-      bitStrm->mdatSize -= bitStrm->curBufSize;
     }
+    if (bitStrm->curBufSize < 1) // nothing read
+      throw LIBRAW_EXCEPTION_IO_EOF;
+    bitStrm->mdatSize -= bitStrm->curBufSize;
   }
 }
 
@@ -351,7 +351,7 @@ libraw_inline void crxDecodeSymbolL1(CrxBandParam *param, int32_t doMedianPredic
     bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
 
   // add converted (+/-) error code to predicted value
-  param->lineBuf1[1] += -(bitCode & 1) ^ (bitCode >> 1);
+  param->lineBuf1[1] += -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
 
   // for not end of the line - use one symbol ahead to estimate next K
   if (notEOL)
@@ -455,7 +455,7 @@ libraw_inline void crxDecodeSymbolL1Rounded(CrxBandParam *param, int32_t doSym =
     bitCode = crxBitstreamGetBits(&param->bitStream, 21);
   else if (param->kParam)
     bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-  int32_t code = -(bitCode & 1) ^ (bitCode >> 1);
+  int32_t code = -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
   param->lineBuf1[1] = param->roundedBitsMask * 2 * code + (code >> 31) + sym;
 
   if (doCode)
@@ -567,7 +567,7 @@ int crxDecodeLineNoRefPrevLine(CrxBandParam *param)
         bitCode = crxBitstreamGetBits(&param->bitStream, 21);
       else if (param->kParam)
         bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-      param->lineBuf1[i + 1] = -(bitCode & 1) ^ (bitCode >> 1);
+      param->lineBuf1[i + 1] = -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
       param->kParam = crxPredictKParameter(param->kParam, bitCode);
       if (param->lineBuf2[i + 1] - param->kParam <= 1)
       {
@@ -628,7 +628,7 @@ int crxDecodeLineNoRefPrevLine(CrxBandParam *param)
             bitCode = crxBitstreamGetBits(&param->bitStream, 21);
           else if (param->kParam)
             bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-          param->lineBuf1[i + 1] = -((bitCode + 1) & 1) ^ ((bitCode + 1) >> 1);
+          param->lineBuf1[i + 1] = -(int32_t)((bitCode + 1) & 1) ^ (int32_t)((bitCode + 1) >> 1);
           param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
           param->lineBuf2[i] = param->kParam;
         }
@@ -641,7 +641,7 @@ int crxDecodeLineNoRefPrevLine(CrxBandParam *param)
           bitCode = crxBitstreamGetBits(&param->bitStream, 21);
         else if (param->kParam)
           bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-        param->lineBuf1[i + 1] = -((bitCode + 1) & 1) ^ ((bitCode + 1) >> 1);
+        param->lineBuf1[i + 1] = -(int32_t)((bitCode + 1) & 1) ^ (int32_t)((bitCode + 1) >> 1);
         param->kParam = crxPredictKParameter(param->kParam, bitCode);
         if (param->lineBuf2[i + 1] - param->kParam <= 1)
         {
@@ -730,7 +730,7 @@ int crxDecodeTopLine(CrxBandParam *param)
       bitCode = crxBitstreamGetBits(&param->bitStream, 21);
     else if (param->kParam)
       bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-    param->lineBuf1[1] += -(bitCode & 1) ^ (bitCode >> 1);
+    param->lineBuf1[1] += -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
     param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     ++param->lineBuf1;
   }
@@ -743,7 +743,7 @@ int crxDecodeTopLine(CrxBandParam *param)
       bitCode = crxBitstreamGetBits(&param->bitStream, 21);
     else if (param->kParam)
       bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-    param->lineBuf1[1] += -(bitCode & 1) ^ (bitCode >> 1);
+    param->lineBuf1[1] += -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
     param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     ++param->lineBuf1;
   }
@@ -815,7 +815,7 @@ int crxDecodeTopLineRounded(CrxBandParam *param)
     else if (param->kParam)
       bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
 
-    int32_t sVal = -(bitCode & 1) ^ (bitCode >> 1);
+    int32_t sVal = -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
     param->lineBuf1[1] += param->roundedBitsMask * 2 * sVal + (sVal >> 31);
     param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     ++param->lineBuf1;
@@ -828,7 +828,7 @@ int crxDecodeTopLineRounded(CrxBandParam *param)
       bitCode = crxBitstreamGetBits(&param->bitStream, 21);
     else if (param->kParam)
       bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-    int32_t sVal = -(bitCode & 1) ^ (bitCode >> 1);
+    int32_t sVal = -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
     param->lineBuf1[1] += param->roundedBitsMask * 2 * sVal + (sVal >> 31);
     param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     ++param->lineBuf1;
@@ -853,7 +853,7 @@ int crxDecodeTopLineNoRefPrevLine(CrxBandParam *param)
         bitCode = crxBitstreamGetBits(&param->bitStream, 21);
       else if (param->kParam)
         bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-      param->lineBuf1[1] = -(bitCode & 1) ^ (bitCode >> 1);
+      param->lineBuf1[1] = -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
       param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     }
     else
@@ -904,7 +904,7 @@ int crxDecodeTopLineNoRefPrevLine(CrxBandParam *param)
         bitCode = crxBitstreamGetBits(&param->bitStream, 21);
       else if (param->kParam)
         bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-      param->lineBuf1[1] = -((bitCode + 1) & 1) ^ ((bitCode + 1) >> 1);
+      param->lineBuf1[1] = -(int32_t)((bitCode + 1) & 1) ^ (int32_t)((bitCode + 1) >> 1);
       param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     }
     param->lineBuf2[0] = param->kParam;
@@ -919,7 +919,7 @@ int crxDecodeTopLineNoRefPrevLine(CrxBandParam *param)
       bitCode = crxBitstreamGetBits(&param->bitStream, 21);
     else if (param->kParam)
       bitCode = crxBitstreamGetBits(&param->bitStream, param->kParam) | (bitCode << param->kParam);
-    param->lineBuf1[1] = -(bitCode & 1) ^ (bitCode >> 1);
+    param->lineBuf1[1] = -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1);
     param->kParam = crxPredictKParameter(param->kParam, bitCode, 15);
     param->lineBuf2[0] = param->kParam;
     ++param->lineBuf1;
@@ -1053,7 +1053,7 @@ int crxUpdateQparam(CrxSubband *subband)
   else if (subband->kParam)
     bitCode = crxBitstreamGetBits(&subband->bandParam->bitStream, subband->kParam) | (bitCode << subband->kParam);
 
-  subband->qParam += -(bitCode & 1) ^ (bitCode >> 1); // converting encoded to signed integer
+  subband->qParam += -(int32_t)(bitCode & 1) ^ (int32_t)(bitCode >> 1); // converting encoded to signed integer
   subband->kParam = crxPredictKParameter(subband->kParam, bitCode);
   if (subband->kParam > 7)
     return -1;
@@ -1737,27 +1737,11 @@ int crxParamInit(CrxImage *img, CrxBandParam **param, uint64_t subbandMdatOffset
   int32_t progrDataSize = supportsPartial ? 0 : sizeof(int32_t) * subbandWidth;
   int32_t paramLength = 2 * subbandWidth + 4;
   uint8_t *paramBuf = 0;
-#if  defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-#pragma omp critical
-  {
-#else
-  img->input->lock();
-#endif
-#endif
     paramBuf = (uint8_t *)
 #ifdef LIBRAW_CR3_MEMPOOL
                    img->memmgr.
 #endif
                calloc(1, sizeof(CrxBandParam) + sizeof(int32_t) * paramLength + progrDataSize);
-
-#if  defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-  }
-#else
-  img->input->unlock();
-#endif
-#endif
 
   if (!paramBuf)
     return -1;
@@ -1818,27 +1802,12 @@ int crxSetupSubbandData(CrxImage *img, CrxPlaneComp *planeComp, const CrxTile *t
       else
         compDataSize += 8 * sizeof(int32_t) * tile->width;
   }
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-#pragma omp critical
-  {
-#else
-  img->input->lock();
-#endif
-#endif
     // buffer allocation
     planeComp->compBuf = (uint8_t *)
 #ifdef LIBRAW_CR3_MEMPOOL
                              img->memmgr.
 #endif
                          malloc(compDataSize);
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-  }
-#else
-  img->input->unlock();
-#endif
-#endif
   if (!planeComp->compBuf)
     return -1;
 
@@ -1992,7 +1961,7 @@ void crxDecodeGolombTop(CrxBitstream *bitStrm, int32_t width, int32_t *lineBuf, 
   {
     lineBuf[1] = lineBuf[0];
     uint32_t qp = crxReadQP(bitStrm, *kParam);
-    lineBuf[1] += -(qp & 1) ^ (qp >> 1);
+    lineBuf[1] += -(int32_t)(qp & 1) ^ (int32_t)(qp >> 1);
     *kParam = crxPredictKParameter(*kParam, qp, 7);
     ++lineBuf;
   }
@@ -2007,7 +1976,7 @@ void crxDecodeGolombNormal(CrxBitstream *bitStrm, int32_t width, int32_t *lineBu
   {
     lineBuf1[1] = crxPrediction(lineBuf1[0], lineBuf0[1], deltaH, lineBuf0[0] - lineBuf1[0]);
     uint32_t qp = crxReadQP(bitStrm, *kParam);
-    lineBuf1[1] += -(qp & 1) ^ (qp >> 1);
+    lineBuf1[1] += -(int32_t)(qp & 1) ^ (int32_t)(qp >> 1);
     if (width)
     {
       deltaH = lineBuf0[2] - lineBuf0[1];
@@ -2021,7 +1990,7 @@ void crxDecodeGolombNormal(CrxBitstream *bitStrm, int32_t width, int32_t *lineBu
   lineBuf1[1] = lineBuf1[0] + 1;
 }
 
-int crxMakeQStep(CrxImage *img, CrxTile *tile, int32_t *qpTable, uint32_t totalQP)
+int crxMakeQStep(CrxImage *img, CrxTile *tile, int32_t *qpTable, uint32_t /*totalQP*/)
 {
   if (img->levels > 3 || img->levels < 1)
     return -1;
@@ -2034,26 +2003,11 @@ int crxMakeQStep(CrxImage *img, CrxTile *tile, int32_t *qpTable, uint32_t totalQ
     totalHeight += qpHeight4;
   if (img->levels > 2)
     totalHeight += qpHeight8;
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-#pragma omp critical
-  {
-#else
-  img->input->lock();
-#endif
-#endif
     tile->qStep = (CrxQStep *)
 #ifdef LIBRAW_CR3_MEMPOOL
                       img->memmgr.
 #endif
                   malloc(totalHeight * qpWidth * sizeof(uint32_t) + img->levels * sizeof(CrxQStep));
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-  }
-#else
-  img->input->unlock();
-#endif
-#endif
 
   if (!tile->qStep)
     return -1;
@@ -2121,7 +2075,7 @@ int crxMakeQStep(CrxImage *img, CrxTile *tile, int32_t *qpTable, uint32_t totalQ
   return 0;
 }
 
-libraw_inline void crxSetupSubbandIdx(crx_data_header_t *hdr, CrxImage *img, CrxSubband *band, int level,
+libraw_inline void crxSetupSubbandIdx(crx_data_header_t *hdr, CrxImage * /*img*/, CrxSubband *band, int level,
                                       short colStartIdx, short bandWidthExCoef, short rowStartIdx,
                                       short bandHeightExCoef)
 {
@@ -2226,7 +2180,7 @@ int crxProcessSubbands(crx_data_header_t *hdr, CrxImage *img, CrxTile *tile, Crx
   return 0;
 }
 
-int crxReadSubbandHeaders(crx_data_header_t *hdr, CrxImage *img, CrxTile *tile, CrxPlaneComp *comp,
+int crxReadSubbandHeaders(crx_data_header_t * /*hdr*/, CrxImage *img, CrxTile * /*tile*/, CrxPlaneComp *comp,
                           uint8_t **subbandMdatPtr, int32_t *mdatSize)
 {
   if (!img->subbandCount)
@@ -2305,15 +2259,6 @@ int crxReadImageHeaders(crx_data_header_t *hdr, CrxImage *img, uint8_t *mdatPtr,
 
   if (!img->tiles)
   {
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-#pragma omp critical
-    {
-#else
-    img->input->lock();
-#endif
-#endif
-
       img->tiles = (CrxTile *)
 #ifdef LIBRAW_CR3_MEMPOOL
                        img->memmgr.
@@ -2321,14 +2266,6 @@ int crxReadImageHeaders(crx_data_header_t *hdr, CrxImage *img, uint8_t *mdatPtr,
                    calloc(sizeof(CrxTile) * nTiles + sizeof(CrxPlaneComp) * nTiles * img->nPlanes +
                               sizeof(CrxSubband) * nTiles * img->nPlanes * img->subbandCount,
                           1);
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-    }
-#else
-    img->input->unlock();
-#endif
-#endif
-
     if (!img->tiles)
       return -1;
 
@@ -2595,26 +2532,11 @@ int crxSetupImageData(crx_data_header_t *hdr, CrxImage *img, int16_t *outBuf, ui
   // left as is.
   if (img->encType == 3 && img->nPlanes == 4 && img->nBits > 8)
   {
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-#pragma omp critical
-    {
-#else
-    img->input->lock();
-#endif
-#endif
       img->planeBuf = (int16_t *)
 #ifdef LIBRAW_CR3_MEMPOOL
                           img->memmgr.
 #endif
                       malloc(img->planeHeight * img->planeWidth * img->nPlanes * ((img->samplePrecision + 7) >> 3));
-#if defined(LIBRAW_CR3_MEMPOOL)
-#if defined(LIBRAW_USE_OPENMP) 
-    }
-#else
-    img->input->unlock();
-#endif
-#endif
     if (!img->planeBuf)
       return -1;
   }
@@ -2697,10 +2619,14 @@ int crxFreeImageData(CrxImage *img)
 void LibRaw::crxLoadDecodeLoop(void *img, int nPlanes)
 {
 #ifdef LIBRAW_USE_OPENMP
-  int results[4]; // nPlanes is always <= 4
+  int results[4] ={0,0,0,0}; // nPlanes is always <= 4
 #pragma omp parallel for
   for (int32_t plane = 0; plane < nPlanes; ++plane)
+   try {
     results[plane] = crxDecodePlane(img, plane);
+   } catch (...) {
+    results[plane] = 1;
+   }
 
   for (int32_t plane = 0; plane < nPlanes; ++plane)
     if (results[plane])
@@ -2749,8 +2675,9 @@ void LibRaw::crxLoadRaw()
 
   imgdata.color.maximum = (1 << hdr.nBits) - 1;
 
-  uint8_t *hdrBuf = (uint8_t *)malloc(hdr.mdatHdrSize);
+  std::vector<uint8_t> hdrBuf(hdr.mdatHdrSize);
 
+  unsigned bytes = 0;
   // read image header
 #ifdef LIBRAW_USE_OPENMP
 #pragma omp critical
@@ -2760,18 +2687,20 @@ void LibRaw::crxLoadRaw()
     libraw_internal_data.internal_data.input->lock();
 #endif
     libraw_internal_data.internal_data.input->seek(libraw_internal_data.unpacker_data.data_offset, SEEK_SET);
-    libraw_internal_data.internal_data.input->read(hdrBuf, 1, hdr.mdatHdrSize);
+    bytes = libraw_internal_data.internal_data.input->read(hdrBuf.data(), 1, hdr.mdatHdrSize);
 #ifndef LIBRAW_USE_OPENMP
     libraw_internal_data.internal_data.input->unlock();
 #endif
   }
 
+  if (bytes != hdr.mdatHdrSize)
+    throw LIBRAW_EXCEPTION_IO_EOF;
+
   // parse and setup the image data
   if (crxSetupImageData(&hdr, &img, (int16_t *)imgdata.rawdata.raw_image,
-                        libraw_internal_data.unpacker_data.data_offset, libraw_internal_data.unpacker_data.data_size,
-                        hdrBuf, hdr.mdatHdrSize))
-    derror();
-  free(hdrBuf);
+	  libraw_internal_data.unpacker_data.data_offset, libraw_internal_data.unpacker_data.data_size,
+	  hdrBuf.data(), hdr.mdatHdrSize))
+    throw LIBRAW_EXCEPTION_IO_CORRUPT;
 
   crxLoadDecodeLoop(&img, hdr.nPlanes);
 

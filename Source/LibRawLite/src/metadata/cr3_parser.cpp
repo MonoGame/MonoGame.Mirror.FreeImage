@@ -159,6 +159,28 @@ void LibRaw::selectCRXTrack()
 			  maxjpegbytes = d->MediaSize;
 			  thumb_offset = d->MediaOffset;
 			  thumb_length = d->MediaSize;
+              if (imgdata.thumbs_list.thumbcount < LIBRAW_THUMBNAIL_MAXCOUNT)
+              {
+                bool do_add = true;
+                for (int idx = 0; idx < imgdata.thumbs_list.thumbcount; idx++)
+                  if (imgdata.thumbs_list.thumblist[idx].toffset == thumb_offset)
+                  {
+                    do_add = false;
+                    break;
+                  }
+                if (do_add)
+                {
+                  int idx = imgdata.thumbs_list.thumbcount;
+                  imgdata.thumbs_list.thumblist[idx].tformat = LIBRAW_INTERNAL_THUMBNAIL_JPEG;
+                  imgdata.thumbs_list.thumblist[idx].toffset = thumb_offset;
+                  imgdata.thumbs_list.thumblist[idx].tlength = thumb_length;
+                  imgdata.thumbs_list.thumblist[idx].tflip = 0xffff;
+                  imgdata.thumbs_list.thumblist[idx].tmisc = (3 << 5) | 8; // 3 samples/8 bps
+                  imgdata.thumbs_list.thumblist[idx].twidth = 0;
+                  imgdata.thumbs_list.thumblist[idx].theight = 0;
+                  imgdata.thumbs_list.thumbcount++;
+                }
+              }
 		  }
 	  }
   }
@@ -508,6 +530,29 @@ int LibRaw::parseCR3(INT64 oAtomList,
 			{
 				thumb_length = unsigned(szAtom - 56);
 				thumb_offset = ftell(ifp);
+				if (imgdata.thumbs_list.thumbcount < LIBRAW_THUMBNAIL_MAXCOUNT)
+				{
+					bool do_add = true;
+					for(int idx = 0; idx < imgdata.thumbs_list.thumbcount; idx++)
+						if (imgdata.thumbs_list.thumblist[idx].toffset == thumb_offset)
+						{
+							do_add = false;
+							break;
+						}
+					if (do_add)
+					{
+						int idx = imgdata.thumbs_list.thumbcount;
+						imgdata.thumbs_list.thumblist[idx].tformat = LIBRAW_INTERNAL_THUMBNAIL_JPEG;
+						imgdata.thumbs_list.thumblist[idx].toffset = thumb_offset;
+						imgdata.thumbs_list.thumblist[idx].tlength = thumb_length;
+						imgdata.thumbs_list.thumblist[idx].tflip = 0xffff;
+						imgdata.thumbs_list.thumblist[idx].tmisc = (3 << 5) | 8; // 3 samples/8 bps
+						imgdata.thumbs_list.thumblist[idx].twidth = (xdata[22] << 8) + xdata[23];
+                        imgdata.thumbs_list.thumblist[idx].theight = (xdata[24] << 8) + xdata[25];
+						imgdata.thumbs_list.thumbcount++;
+					}
+				}
+
 			}
 		}
 		fseek(ifp, tt, SEEK_SET);
@@ -549,6 +594,34 @@ int LibRaw::parseCR3(INT64 oAtomList,
       parse_tiff_ifd(oAtomContent);
       order = q_order;
     }
+	else if (!strcmp(AtomNameStack, "moovuuidTHMB") && szAtom > 24)
+	{
+		unsigned char xdata[16];
+		fread(xdata, 16, 1, ifp);
+		INT64 xoffset = ftell(ifp);
+		if (imgdata.thumbs_list.thumbcount < LIBRAW_THUMBNAIL_MAXCOUNT)
+		{
+			bool do_add = true;
+			for (int idx = 0; idx < imgdata.thumbs_list.thumbcount; idx++)
+				if (imgdata.thumbs_list.thumblist[idx].toffset == xoffset)
+				{
+					do_add = false;
+					break;
+				}
+            if (do_add)
+            {
+              int idx = imgdata.thumbs_list.thumbcount;
+              imgdata.thumbs_list.thumblist[idx].tformat = LIBRAW_INTERNAL_THUMBNAIL_JPEG;
+			  imgdata.thumbs_list.thumblist[idx].toffset = xoffset;
+              imgdata.thumbs_list.thumblist[idx].tlength = szAtom-24;
+			  imgdata.thumbs_list.thumblist[idx].tflip = 0xffff;
+              imgdata.thumbs_list.thumblist[idx].tmisc = (3 << 5) | 8; // 3 samples/8 bps
+              imgdata.thumbs_list.thumblist[idx].twidth = (xdata[4] << 8) + xdata[5];
+              imgdata.thumbs_list.thumblist[idx].theight = (xdata[6] << 8) + xdata[7];
+              imgdata.thumbs_list.thumbcount++;
+            }
+		}
+	}
 	else if (!strcmp(AtomNameStack, "moovuuidCMT2"))
 	{
 		short q_order = order;
@@ -676,7 +749,7 @@ int LibRaw::parseCR3(INT64 oAtomList,
       if (szAtomContent >= 12) {
         fseek(ifp, 4L, SEEK_CUR);
         int entries = get4();
-        if (!entries)
+        if (entries < 1 || entries > 1000000)
         {
           err =  -9;
           goto fin;
@@ -715,7 +788,7 @@ int LibRaw::parseCR3(INT64 oAtomList,
         else
         {
           current_track.sample_size = 0;
-          if (entries >= (INT_MAX - 4) / 32) {
+          if (entries < 1 || entries > 1000000) {
             err = -10;
             goto fin;
           }
@@ -738,7 +811,7 @@ int LibRaw::parseCR3(INT64 oAtomList,
         fseek(ifp, 4L, SEEK_CUR);
         uint32_t entries = get4();
         int i;
-        if (!entries)
+        if (entries < 1 || entries > 1000000)
         {
           err = -11;
           goto fin;
