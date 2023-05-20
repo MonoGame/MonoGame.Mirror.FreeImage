@@ -213,6 +213,7 @@
     <ClCompile Include="tif_fax3sm.c" />
     <ClCompile Include="tif_flush.c" />
     <ClCompile Include="tif_getimage.c" />
+    <ClCompile Include="tif_hash_set.c" />
     <ClCompile Include="tif_jpeg.c" />
     <ClCompile Include="tif_lerc.c" />
     <ClCompile Include="tif_luv.c" />
@@ -240,6 +241,7 @@
     <ClInclude Include="tif_config.h" />
     <ClInclude Include="tif_dir.h" />
     <ClInclude Include="tif_fax3.h" />
+    <ClInclude Include="tif_hash_set.h" />
     <ClInclude Include="tif_predict.h" />
     <ClInclude Include="tiff.h" />
     <ClInclude Include="tiffconf.h" />

@@ -122,6 +122,9 @@
     <ClCompile Include="tif_webp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tif_hash_set.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="t4.h">
@@ -155,6 +158,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uvcode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tif_hash_set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
