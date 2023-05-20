@@ -5,7 +5,7 @@ What's New for FreeImage
 ! : changed
 + : added
 
-Month day, 2021 - 3.19.0
+Month day, 2023 - 3.19.0
 ! FreeImage now uses ZLib 1.2.13
 ! FreeImage now uses LibPNG 1.6.39
 ! FreeImage now uses LibTIFF 4.5.0 (GIT patch 2023-05-18)
